@@ -1,0 +1,43 @@
+﻿@{
+	Layout = null;
+}
+@Model 
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Мой маленький блог</title>
+	Мой маленький блог
+</head>
+<body>
+	
+    <div>
+		<form method="post" action="/Home/AddPost">
+			<p>Введите свое имя </p>
+			<input type="text" name="Autor" />
+			<p>Введите текст поста :</p>
+			<input type="text" name="Content" />
+			<input type="submit" value="Отправить" />
+		</form>
+		<br />
+    @foreach (var b in ViewBag.Posts)
+	{
+		@b.Autor <br />
+		@b.Content <br />
+		<a href = "/Home/EditPost?id=@b.PostId" >Редактировать</a > <br />
+		<a href="/Home/DeletePost?id=@b.PostId">Удалить</a>
+		<br />
+	}
+		@if (ViewBag.CurrentPage >1)
+		{
+			<p><a href="/Home/Index?page=@(ViewBag.CurrentPage-1)"> Предидущая страница </a> <br /></p>
+		}
+		@if (ViewBag.HasNextPage == true)
+		{
+			<p><a href="/Home/Index?page=@(ViewBag.CurrentPage+1)"> Cледующая страница</a> <br /></p>
+		}
+    </div>
+	
+</body>
+</html>

@@ -1,0 +1,26 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Редактироване поста</title>
+	Редактироване поста
+</head>
+<body>
+    <div> 
+		<form method="post" action="/Home/UpdatePost">
+			<input type="hidden" value="@ViewBag.UpdatedPost.PostId" name="PostId" />
+			<p>Введите свое имя :</p>
+			<input type="text" value="@ViewBag.UpdatedPost.Autor" name="Autor" />
+			<p>Введите текст поста :</p>
+			<input type="text" value="@ViewBag.UpdatedPost.Content" name="Content" />
+			<input type="submit" value="Изменить" />
+		</form>
+    </div>
+</body>
+</html>

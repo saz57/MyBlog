@@ -137,7 +137,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Post.cs" />
-    <Compile Include="PostStorage\Storage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\SQLRepository.cs" />
     <Compile Include="Repository\IRepository.cs" />

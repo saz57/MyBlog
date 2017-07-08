@@ -8,10 +8,14 @@ namespace MyBlog.Repository
 {
     interface IRepository
     {
-        List<T> Get<T>(int pageNumber, int pageSize) where T : Post;
-        T Get<T>(int Id) where T : Post;
-        void Put<T>(T item) where T : Post;
-        void DeleteById(int Id); //where T : Post;
-        void Update<T>(T item) where T : Post;
+        List<Post> GetPosts(int pageNumber, int pageSize);
+        Post GetPost(int id);
+        Comment GetComment(int id);
+        void Put(Post item);
+        void Put(Comment item);
+        void DeletePostById(int id);
+        void DeleteCommentById(int id);
+        void Update(Post item);
+        void Update(Comment item);
     }
 }

@@ -1,4 +1,4 @@
-﻿@model MyBlog.Models.Post
+﻿@model MyBlog.Models.Comment
 
 @{
     Layout = null;
@@ -9,19 +9,18 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Editing post</title>
-	Editing post
+    <title>EditComment</title>
 </head>
-
 <body>
     <div> 
-		<form method="post" action="/Home/UpdatePost">
+		<form method="post" action="/Home/UpdateComment">
 
+			<input type="hidden" value="@Model.CommentId" name="CommentId" />
 			<input type="hidden" value="@Model.PostId" name="PostId" />
 
 			<p>Autor :</p>
 			<input type="text" value="@Model.Autor" name="Autor" />
-			<p>Post's text :</p>
+			<p>Comment's text :</p>
 			<input type="text" value="@Model.Content" name="Content" />
 			<input type="submit" value="Изменить" />
 		</form>

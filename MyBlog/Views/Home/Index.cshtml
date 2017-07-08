@@ -1,41 +1,61 @@
-﻿@{
+﻿@model MyBlog.Models.HomeViewModel
+
+@{
 	Layout = null;
 }
-@Model 
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Мой маленький блог</title>
-	Мой маленький блог
+    <title>My little blog</title>
+	My little blog
 </head>
 <body>
 	
     <div>
 		<form method="post" action="/Home/AddPost">
-			<p>Введите свое имя </p>
+			<p>Enter your name :</p>
 			<input type="text" name="Autor" />
-			<p>Введите текст поста :</p>
+			<p>Enter your post :</p>
 			<input type="text" name="Content" />
 			<input type="submit" value="Отправить" />
 		</form>
 		<br />
-    @foreach (var b in ViewBag.Posts)
+    @foreach (var b in Model.Posts)
 	{
 		@b.Autor <br />
 		@b.Content <br />
-		<a href = "/Home/EditPost?id=@b.PostId" >Редактировать</a > <br />
-		<a href="/Home/DeletePost?id=@b.PostId">Удалить</a>
+		<a href = "/Home/EditPost?id=@b.PostId" >Edit</a > <br />
+		<a href = "/Home/DeletePost?id=@b.PostId" >Delete</a>
 		<br />
-	}
-		@if (ViewBag.CurrentPage >1)
+
+		<form method="post" action="/Home/AddComment">
+			<input type="hidden" name="Post" value=@b />
+			<input type="hidden" name="PostId" value=@b.PostId />
+
+			<p>Enter your name :</p>
+			<input type="text" name="Autor" />
+			<p>Enter comment :</p>
+			<input type="text" name="Content" />
+			<input type="submit" value="Send" />
+		</form>
+
+		foreach (var c in b.Comments)
 		{
-			<p><a href="/Home/Index?page=@(ViewBag.CurrentPage-1)"> Предидущая страница </a> <br /></p>
+			@c.Autor <br />
+			@c.Content <br />
+			<a href="/Home/EditComment?id=@c.CommentId">Edit</a> <br />
+			<a href="/Home/DeleteComment?id=@c.CommentId">Delete</a>
+			<br />
 		}
-		@if (ViewBag.HasNextPage == true)
+	}
+			@if (Model.CurrentPage > 1)
+			{
+<p><a href="/Home/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
+		}
+		@if (Model.HasNextPage == true)
 		{
-			<p><a href="/Home/Index?page=@(ViewBag.CurrentPage+1)"> Cледующая страница</a> <br /></p>
+			<p><a href="/Home/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
 		}
     </div>
 	

@@ -1,0 +1,63 @@
+﻿@model MyBlog.ViewModels.UserViewModel
+<body>
+	<div>
+		<p>User nickname @Model.NickName</p>
+		<p> @Model.Role.ToString()</p>
+		@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+		{
+			<p>  <a href="/Users/ChangeRole?id=@Model.Id">Change Role</a> </p>
+		}
+		<p>Posts</p>
+		<table>
+			<tr>
+				<td>Content</td>
+				<td>Is Hidden</td>
+			</tr>
+			@foreach (var post in Model.Posts)
+			{
+				<tr>
+					<td>@post.Content</td>
+					<td>@post.IsHidden.ToString()</td>
+
+					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == post.Autor.Id)
+					{
+					<td><a href="/Home/EditPost?id=@post.Id">[Edit]</a></td>
+					<td><a href="/Home/DeletePost?id=@post.Id">[Delete]</a></td>
+					}
+
+					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+					{
+					<td><a href="/Home/HidePost?id=@post.Id">[Hide]</a></td>
+					}
+				</tr>
+			}
+		</table>
+		<p>Comments</p>
+		<table>
+			<tr>
+				<td>Content</td>
+				<td>Is Hidden</td>
+			</tr>
+			@foreach (var comment in Model.Comments)
+			{
+				<tr>
+					<td>@comment.Content</td>
+					<td>@comment.IsHidden.ToString()</td>
+
+					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == comment.Autor.Id)
+					{
+					<td><a href="/Home/EditComment?id=@comment.Id">[Edit]</a></td>
+					<td><a href="/Home/DeleteComment?id=@comment.Id">[Delete]</a></td>
+					}
+
+					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+					{
+					<td><a href="/Home/HideComment?id=@comment.Id">[Hide]</a></td>
+					}
+
+				</tr>
+			}
+		</table>
+	</div>
+</body>
+

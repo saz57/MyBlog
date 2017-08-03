@@ -5,12 +5,11 @@ using System.Web;
 
 namespace MyBlog.Models
 {
-    public class Comment
+    public class Comment : BaseModel
     {
-        public int CommentId { get; set; }
-        public int? PostId { get; set; }
-        public virtual Post Post { get; set; }
-        public string Autor { get; set; }
+        public bool IsHidden { get; set; }
+        public Post Post { get; set; }
+        public ApplicationUser Autor { get; set; }
         public string Content { get; set; }
     }
 }

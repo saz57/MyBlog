@@ -1,29 +1,17 @@
 ﻿@model MyBlog.Models.Comment
 
-@{
-    Layout = null;
-}
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>EditComment</title>
-</head>
 <body>
+	<p>Edit Comment</p>
     <div> 
 		<form method="post" action="/Home/UpdateComment">
 
-			<input type="hidden" value="@Model.CommentId" name="CommentId" />
-			<input type="hidden" value="@Model.PostId" name="PostId" />
+			<input type="hidden" value="@Model.Id" name="Id" />
+			<input type="hidden" value="@Model.Post.Id" name="PostId" />
+			<input type="hidden" value="@Model.Autor.Id" name="AutorId" />
 
-			<p>Autor :</p>
-			<input type="text" value="@Model.Autor" name="Autor" />
 			<p>Comment's text :</p>
 			<input type="text" value="@Model.Content" name="Content" />
-			<input type="submit" value="Изменить" />
+			<input type="submit" value="Edit" />
 		</form>
     </div>
 </body>
-</html>

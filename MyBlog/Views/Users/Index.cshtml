@@ -1,0 +1,42 @@
+﻿
+@model MyBlog.ViewModels.UsersListViewModel
+
+<body>
+	<div>
+		<table border="1">
+			<tr>
+				<td> Nickname </td>
+				<td> Posts count </td>
+				<td> Comments count </td>
+				<td> Role </td>
+			</tr>
+			@foreach (var user in Model.Users)
+			{
+
+				<tr>
+					<td> <a href="/Users/ShowUserProfile?id=@user.Id">@user.NickName </a></td>
+					<td> @user.Posts.Count</td>
+					<td> @user.Comments.Count</td>
+					<td> @user.Role.ToString()</td>
+
+					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+					{
+						<td>  <a href="/Users/ChangeRole?id=@user.Id">Change Role</a> </td>
+					}
+				</tr>
+
+			}
+		</table>
+
+		@if (Model.CurrentPage > 1)
+		{
+			<p><a href="/Users/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
+		}
+
+		@if (Model.HasNextPage == true)
+		{
+			<p><a href="/Users/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
+		}
+	</div>
+</body>
+

@@ -1,0 +1,28 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+    @RenderSection("Styles", false)
+</head>
+
+<body>
+	<nav>
+		@if (User.Identity.IsAuthenticated)
+		{
+			@User.Identity.Name; <br />
+			<a href="/Account/LogOut">Log out</a>
+		}
+		@if (!User.Identity.IsAuthenticated)
+		{
+			<a href="/Account/Login">Log in</a><br />
+			<a href="/Account/Registration">Registration</a><br />
+		}
+	</nav>
+	@RenderBody()
+</body>
+</html>

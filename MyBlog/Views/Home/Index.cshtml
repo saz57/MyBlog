@@ -1,63 +1,91 @@
-﻿@model MyBlog.Models.HomeViewModel
+﻿@using MyBlog.Controllers;
+@model MyBlog.ViewModels.HomeViewModel
 
-@{
-	Layout = null;
+@section Styles {
+	<link href="@Url.Content("~/Content/Styles/main.css")" rel="stylesheet" type="text/css" />
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>My little blog</title>
-	My little blog
-</head>
-<body>
-	
-    <div>
-		<form method="post" action="/Home/AddPost">
-			<p>Enter your name :</p>
-			<input type="text" name="Autor" />
-			<p>Enter your post :</p>
-			<input type="text" name="Content" />
-			<input type="submit" value="Отправить" />
-		</form>
-		<br />
-    @foreach (var b in Model.Posts)
+
+<a href="/Users/Index/">[Show Users list]</a>
+
+<div class="content">
+
+	@if (!User.Identity.IsAuthenticated)
 	{
-		@b.Autor <br />
-		@b.Content <br />
-		<a href = "/Home/EditPost?id=@b.PostId" >Edit</a > <br />
-		<a href = "/Home/DeletePost?id=@b.PostId" >Delete</a>
-		<br />
-
-		<form method="post" action="/Home/AddComment">
-			<input type="hidden" name="Post" value=@b />
-			<input type="hidden" name="PostId" value=@b.PostId />
-
-			<p>Enter your name :</p>
-			<input type="text" name="Autor" />
-			<p>Enter comment :</p>
-			<input type="text" name="Content" />
-			<input type="submit" value="Send" />
-		</form>
-
-		foreach (var c in b.Comments)
-		{
-			@c.Autor <br />
-			@c.Content <br />
-			<a href="/Home/EditComment?id=@c.CommentId">Edit</a> <br />
-			<a href="/Home/DeleteComment?id=@c.CommentId">Delete</a>
-			<br />
-		}
+		<p>Please log in to write your post</p>
 	}
-			@if (Model.CurrentPage > 1)
-			{
-<p><a href="/Home/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
-		}
-		@if (Model.HasNextPage == true)
+
+	@if (User.Identity.IsAuthenticated)
+	{
+		<div class="new-post">
+			<form method="post" action="/Home/AddPost" class="new-post-form">
+				<p>Enter your post :</p>
+				<input type="text" name="Content" />
+				<input type="submit" value="Send" />
+			</form>
+		</div>
+	}
+
+	<div class="posts">
+		@foreach (var post in Model.Posts)
 		{
-			<p><a href="/Home/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
+			<div class="post">
+				@post.Autor.NickName <br />
+				@post.Content <br />
+
+				@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == post.Autor.Id)
+				{
+					<a href="/Home/EditPost?id=@post.Id">[Edit]</a>
+					<a href="/Home/DeletePost?id=@post.Id">[Delete]</a>
+				}
+
+				@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+				{
+					<a href="/Home/HidePost?id=@post.Id">[Hide]</a>
+				}
+
+				<br />
+
+				@if (User.Identity.IsAuthenticated)
+				{
+					<form method="post" action="/Home/AddComment">
+						<input type="hidden" name="PostId" value=@post.Id />
+						<p>Enter comment :</p>
+						<input type="text" name="Content" />
+						<input type="submit" value="Send" />
+					</form>
+				}
+
+				<div class="comments">
+					@foreach (var comment in post.Comments)
+					{
+						<div class="comment">
+							@comment.Autor.NickName <br />
+							@comment.Content <br />
+
+							@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == comment.Autor.Id)
+							{
+								<a href="/Home/EditComment?id=@comment.Id">[Edit]</a>
+								<a href="/Home/DeleteComment?id=@comment.Id">[Delete]</a>
+							}
+
+							@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
+							{
+								<a href="/Home/HideComment?id=@comment.Id">[Hide]</a>
+							}
+
+							<br />
+						</div>
+					}
+				</div>
+			</div>
 		}
-    </div>
-	
-</body>
-</html>
+	</div>
+	@if (Model.CurrentPage > 1)
+	{
+		<p><a href="/Home/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
+	}
+	@if (Model.HasNextPage == true)
+	{
+		<p><a href="/Home/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
+	}
+</div>  

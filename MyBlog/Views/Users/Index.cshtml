@@ -1,42 +1,79 @@
-﻿
+﻿@using PagedList.Mvc;
+@using Kendo.Mvc.UI;
 @model MyBlog.ViewModels.UsersListViewModel
 
+@{
+
+    /* */
+    Layout = "~/Views/_AdminsLayout.cshtml";
+}
+
+
 <body>
-	<div>
-		<table border="1">
-			<tr>
-				<td> Nickname </td>
-				<td> Posts count </td>
-				<td> Comments count </td>
-				<td> Role </td>
-			</tr>
-			@foreach (var user in Model.Users)
-			{
 
-				<tr>
-					<td> <a href="/Users/ShowUserProfile?id=@user.Id">@user.NickName </a></td>
-					<td> @user.Posts.Count</td>
-					<td> @user.Comments.Count</td>
-					<td> @user.Role.ToString()</td>
 
-					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-					{
-						<td>  <a href="/Users/ChangeRole?id=@user.Id">Change Role</a> </td>
-					}
-				</tr>
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.common.min.css" />
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.default.min.css" />
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.default.mobile.min.css" />
+    <script src="@RouteJs.RouteJsHandler.HandlerUrl"></script>
+    <script src="~/Scripts/ItsNotMyKendo.js"></script>
 
-			}
-		</table>
 
-		@if (Model.CurrentPage > 1)
-		{
-			<p><a href="/Users/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
-		}
+    <table class="table table-striped" id="admingrid">
 
-		@if (Model.HasNextPage == true)
-		{
-			<p><a href="/Users/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
-		}
-	</div>
+        <thead>
+            <tr>
+                <th data-field="Nickname" data-filterable="false"> Nickname </th>
+                <th data-field="PostCount" data-type="number"> Posts count </th>
+                <th data-field="CommentCount" data-type="number"> Comments count </th>
+                <th data-field="Roles" data-filterable="false"> Roles </th>
+                <th data-field="AddToRole" data-filterable="false"> Add to role </th>
+                <th data-field="BlockingUser" data-filterable="false"> Blocking user </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var user in Model.Users)
+            {
+
+                <tr>
+                    <td><a href=@Url.Action("ShowUserProfile",new {id = user.Id })>@user.NickName</a></td>
+                    <td>@user.Posts.Count</td>
+                    <td>@user.Comments.Count</td>
+                    <td>
+                        @foreach (var role in user.Roles)
+                        {
+                            <p>@role - @Html.ActionLink("Remove", "RemoveFromRole", "Users", new { userId = user.Id, role = role }, null)</p>
+
+                        }
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("AddToRole", "Users"))
+                        {
+                            @Html.Hidden("userId", user.Id);
+                            @Html.DropDownList("role", Model.Roles);
+                            <input type="submit" value="Add to role">
+
+                        }
+                    </td>
+                    <td>
+
+                        @if (!user.IsBlocked)
+                        {
+                            @Html.ActionLink("Block user", "ChangeIsBlocked", "Users", new { userId = user.Id, isBlocked = true }, null)
+                        }
+
+                        @if (user.IsBlocked)
+                        {
+                            @Html.ActionLink("Unlock user", "ChangeIsBlocked", "Users", new { userId = user.Id, isBlocked = false }, null)
+                        }
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+    <script src="~/Scripts/adminGrid.js"></script>
 </body>
-

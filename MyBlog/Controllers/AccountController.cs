@@ -1,24 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Security.Claims;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Host.SystemWeb;
+
 using MyBlog.Models;
 using MyBlog.ViewModels;
-using MyBlog.Repository;
+using MyBlog.DAL.Repository;
+using MyBlog.DAL.RepositoriesManager;
 
 namespace MyBlog.Controllers
 {
     public class AccountController : Controller
     {
-        private static UsersRepository _userRepository;
+        private ApplicationSignInManager _signInManager;
 
-        static AccountController()
+        public ApplicationSignInManager SignInManager
         {
-            _userRepository = new UsersRepository();
-        }
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
 
+            private set
+            {
+                _signInManager = value;
+            }
+        }
 
 
         public ActionResult Registration()
@@ -30,31 +43,22 @@ namespace MyBlog.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Registration(RegistrationViewModel model)
         {
-
-            if (_userRepository.GetByLogin(model.Login) != null)
-            {
-                return View();
-            }
-
-            if (_userRepository.GetByNickName(model.NickName) != null)
-            {
-                return View();
-            }
-
-            if (model.Password != model.ConfirmPassword)
+            if (String.IsNullOrWhiteSpace(model.UserName) || String.IsNullOrWhiteSpace(model.Password)
+                || RepositoryManager.UserManager.FindByName(model.UserName) != null || model.Password != model.ConfirmPassword)
             {
                 return View();
             }
 
             ApplicationUser user = new ApplicationUser();
-            user.Login = model.Login;
-            user.Password = model.Password;
-            user.NickName = model.NickName;
-            _userRepository.Put(user);
+            user.UserName = model.UserName;
+            user.IsBlocked = false;
+            user.RegistrationDate = DateTime.Now;
+            var result = RepositoryManager.UserManager.Create(user, model.Password);
 
-            if (_userRepository.GetByLogin(user.Login) != null)
+            if(result.Succeeded)
             {
-                FormsAuthentication.SetAuthCookie(model.NickName, true);
+                RepositoryManager.UserManager.AddToRole(user.Id, "User");
+                SignInManager.SignIn(user, false, false);
                 return RedirectToAction("Index", "Home");
             }
 
@@ -70,18 +74,34 @@ namespace MyBlog.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model)
         {
-            ApplicationUser user = _userRepository.GetByLogin(model.Login);
-
-            if (user != null && user.Password == model.Password)
+            if (!String.IsNullOrWhiteSpace(model.Login) && !String.IsNullOrWhiteSpace(model.Password))
             {
-                FormsAuthentication.SetAuthCookie(user.NickName, true);
-                return RedirectToAction("Index", "Home");
+
+                ApplicationUser user = RepositoryManager.UserManager.FindByName(model.Login);
+
+                if (user != null)
+                {
+
+                    if (user.IsBlocked)
+                    {
+                        return View("Blocked");
+                    }
+
+                    SignInStatus status = SignInManager.PasswordSignIn(model.Login, model.Password, false, false);
+
+                    if (status == SignInStatus.Success)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
             }
             return View();
         }
 
+
         public ActionResult LogOut()
         {
+            SignInManager.AuthenticationManager.SignOut();
             FormsAuthentication.SignOut();
             return RedirectToAction("Index", "Home");
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using MyBlog.Models;
+using PagedList;
 
 namespace MyBlog.ViewModels
 {
@@ -10,7 +11,6 @@ namespace MyBlog.ViewModels
     {
         public int CurrentPage { get; set; }
         public bool HasNextPage { get; set; }
-        public CurrentUserViewModel CurrentUser { get; set; }
-        public IEnumerable<Post> Posts { get; set; }
+        public IPagedList<Post> Posts { get; set; }
     }
 }

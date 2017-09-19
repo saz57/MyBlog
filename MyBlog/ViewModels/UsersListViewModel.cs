@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
+using Microsoft.AspNet.Identity.EntityFramework;
+using PagedList;
+
 using MyBlog.Models;
+
 
 namespace MyBlog.ViewModels
 {
     public class UsersListViewModel
     {
-        public bool HasNextPage { get; set; }
-        public int CurrentPage { get; set; }
-        public CurrentUserViewModel CurrentUser { get; set; }
-        public IEnumerable<ApplicationUser> Users { get; set; }
+        public IEnumerable<SelectListItem> Roles { get; set; }
+        public IPagedList<UserViewModel> Users { get; set; }
     }
 }

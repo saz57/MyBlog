@@ -1,0 +1,6 @@
+﻿@model List<MyBlog.Models.Picture>
+
+@foreach (var picture in Model)
+{
+    <p><img src=@Url.Content(picture.PicturePath)></p>
+}

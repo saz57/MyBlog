@@ -9,10 +9,7 @@ namespace MyBlog.ViewModels
     public class RegistrationViewModel
     {
             [Required]
-            public string Login { get; set; }
-
-            [Required]
-            public string NickName { get; set; }
+            public string UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
@@ -20,7 +17,7 @@ namespace MyBlog.ViewModels
 
             [Required]
             [DataType(DataType.Password)]
-            [Compare("Password", ErrorMessage = "Пароли не совпадают")]
+            [Compare("Password", ErrorMessage = "Passwords do not match")]
             public string ConfirmPassword { get; set; }
     }
 }

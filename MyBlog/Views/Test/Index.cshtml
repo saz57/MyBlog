@@ -1,0 +1,92 @@
+﻿
+@{
+    Layout = null;
+}
+
+@using PagedList.Mvc;
+@model MyBlog.ViewModels.PostViewModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/ItsNotMyKendo.js"></script>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.common.min.css" />
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.default.min.css" />
+    <link rel="stylesheet" href="~/Content/kendo/2017.2.621/kendo.default.mobile.min.css" />
+
+    <title>Index</title>
+</head>
+<body>
+    <p></p>
+    <a href="#" class="uno" value ="@Json.Encode(Model)">UNO</a>
+
+    <h3>AJAX without form</h3>
+    <div>
+        <div id="uploaded">
+
+        </div>
+        <input accept="image/*" type="file" multiple="multiple" name="upload" id="uploadFile" /><br />
+        <button id="upload">Загрузить</button>
+        <button id="submit">Отправить</button>
+    </div>
+
+    <script type="text/javascript">
+        var myData = new FormData();
+        var dataLeight = 0;
+            $('#upload').click(function (e) {
+                console.log("Upload");
+                e.preventDefault();
+                var fileInputElement = document.getElementById('uploadFile');
+                var uploadedView = document.getElementById('uploaded');
+                var files = fileInputElement.files;
+                if (files.length > 0) {
+                    if (window.FormData !== undefined) {
+
+                        for (var x = 0; x < files.length; x++) {
+                            dataLeight++;
+                            myData.append("file" + dataLeight, files[x]);
+                            var htmlString = "<div><p>" + files[x].name + '<a href="#" class="deletePicture" value="file' + dataLeight + '">X</a></p></div>'
+                            uploadedView.innerHTML += htmlString;
+                        }
+                    }
+                }
+                fileInputElement.value = "";
+                addListenersForDelele();
+        });
+
+            function addListenersForDelele() {
+
+                var pictures = document.getElementsByClassName("deletePicture");
+                for (var i = 0; i < pictures.length; i++) {
+                    pictures[i].addEventListener("click", function (e) { delelePicture(e); });
+                }
+            }
+
+            function delelePicture(e) {
+                myData.delete(e.target.getAttribute("value"));
+                e.target.parentElement.remove();
+            }
+
+            $('#submit').click(function (e) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadAjax", "Test")',
+                    contentType: false,
+                    processData: false,
+                    data: myData,
+                    success: function (result) {
+                        alert(result);
+                    },
+                    error: function (xhr, status, p3) {
+                        alert(xhr.responseText);
+                    }
+                });
+            });
+    </script>
+</body>
+</html>

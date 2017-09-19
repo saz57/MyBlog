@@ -1,60 +1,28 @@
 ﻿@model MyBlog.ViewModels.RegistrationViewModel
 
-@{
-	Layout = "~/Views/_Layout.cshtml";
-}
-<head>
-	Registration
-</head>
-
 <body>
-	@using (Html.BeginForm())
-	{
-		@Model
-		@Html.AntiForgeryToken()
+    <div class="container">
+        @using (Html.BeginForm("Registration", "Account", FormMethod.Post, new { @class = "form-signin" }))
+        {
+            @Model
+            @Html.AntiForgeryToken()
 
-		<div class="form-horizontal">
-			@Html.ValidationSummary(true)
+            @Html.ValidationSummary(true)
 
-			<div class="form-group">
-				@Html.LabelFor(model => model.Login, new { @class = "control-label col-md-2" })
-				<div class="col-md-10">
-					@Html.EditorFor(model => model.Login)
-					@Html.ValidationMessageFor(model => model.Login)
-				</div>
-			</div>
+            <label class="sr-only" for="UserName">UserName</label>
+            <input class="text-box single-line form-control" placeholder="Username" data-val="true" data-val-required="The UserName field is required." id="UserName" name="UserName" type="text" value="">
+            <span class="field-validation-valid" data-valmsg-for="UserName" data-valmsg-replace="true"></span>
 
+            <label class="sr-only" for="Password">Password</label>
+            <input class="text-box single-line password form-control" placeholder="Password" data-val="true" data-val-required="The Password field is required." id="Password" name="Password" type="password" value="">
+            <span class="field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
 
-			<div class="form-group">
-				@Html.LabelFor(model => model.NickName, new { @class = "control-label col-md-2" })
-				<div class="col-md-10">
-					@Html.EditorFor(model => model.NickName)
-					@Html.ValidationMessageFor(model => model.NickName)
-				</div>
-			</div>
-
-			<div class="form-group">
-				@Html.LabelFor(model => model.Password, new { @class = "control-label col-md-2" })
-				<div class="col-md-10">
-					@Html.EditorFor(model => model.Password)
-					@Html.ValidationMessageFor(model => model.Password)
-				</div>
-			</div>
-
-			<div class="form-group">
-				@Html.LabelFor(model => model.ConfirmPassword, new { @class = "control-label col-md-2" })
-				<div class="col-md-10">
-					@Html.EditorFor(model => model.ConfirmPassword)
-					@Html.ValidationMessageFor(model => model.ConfirmPassword)
-				</div>
-			</div>
+            <label class="sr-only" for="ConfirmPassword">ConfirmPassword</label>
+            <input class="text-box single-line password form-control" placeholder="Confirm password" data-val="true" data-val-equalto="Passwords do not match" data-val-equalto-other="*.Password" data-val-required="The ConfirmPassword field is required." id="ConfirmPassword" name="ConfirmPassword" type="password" value="">
+            <span class="field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+            <input type="submit" value="Sign up" class="btn btn-block btn-primary">
 
 
-			<div class="form-group">
-				<div class="col-md-offset-2 col-md-10">
-					<input type="submit" value="Sign up" class="btn btn-default" />
-				</div>
-			</div>
-		</div>
-	}
+        }
+        </div>
 </body>

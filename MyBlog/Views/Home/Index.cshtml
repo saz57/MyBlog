@@ -1,91 +1,123 @@
-﻿@using MyBlog.Controllers;
+﻿@using PagedList.Mvc;
 @model MyBlog.ViewModels.HomeViewModel
 
-@section Styles {
-	<link href="@Url.Content("~/Content/Styles/main.css")" rel="stylesheet" type="text/css" />
-}
+<div class="container">
 
-<a href="/Users/Index/">[Show Users list]</a>
+    <div id="modDialog" class="modal fade">
+        <div id="dialogContent" class="modal-dialog"></div>
+    </div>
 
-<div class="content">
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <p>Please log in to write your post</p>
+    }
 
-	@if (!User.Identity.IsAuthenticated)
-	{
-		<p>Please log in to write your post</p>
-	}
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a href=@Url.Action("AddPost")>Add new post</a>
+    }
 
-	@if (User.Identity.IsAuthenticated)
-	{
-		<div class="new-post">
-			<form method="post" action="/Home/AddPost" class="new-post-form">
-				<p>Enter your post :</p>
-				<input type="text" name="Content" />
-				<input type="submit" value="Send" />
-			</form>
-		</div>
-	}
+    <div class="row">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="col-lg-4">
+                <h2 class="word_breakable">
+                    Autor: @post.Autor.UserName
+                </h2>
 
-	<div class="posts">
-		@foreach (var post in Model.Posts)
-		{
-			<div class="post">
-				@post.Autor.NickName <br />
-				@post.Content <br />
+                <h3 class="word_breakable">
+                    @post.Name
+                </h3>
+                <div>
+                    @foreach (var picture in post.Pictures)
+                {
+                        <img src=@Url.Content(picture.PicturePath) height="128" width="128">
+                    }
+                </div>
+                <p class="word_breakable">
+                    @post.Content
+                </p>
 
-				@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == post.Autor.Id)
-				{
-					<a href="/Home/EditPost?id=@post.Id">[Edit]</a>
-					<a href="/Home/DeletePost?id=@post.Id">[Delete]</a>
-				}
+                @if (User.Identity.IsAuthenticated && User.Identity.Name == post.Autor.UserName)
+                {
+                    <a href="/Home/EditPost?id=@post.Id">[Edit]</a>
+                    <a href="/Home/DeletePost?id=@post.Id" class="deletePopUp">[Delete]</a>
+                }
 
-				@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-				{
-					<a href="/Home/HidePost?id=@post.Id">[Hide]</a>
-				}
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
 
-				<br />
+                    if (!post.IsHidden)
+                    {
+                        <a href="/Home/SetIsHidePost?id=@post.Id&hide=true">[Hide]</a>
+                    }
 
-				@if (User.Identity.IsAuthenticated)
-				{
-					<form method="post" action="/Home/AddComment">
-						<input type="hidden" name="PostId" value=@post.Id />
-						<p>Enter comment :</p>
-						<input type="text" name="Content" />
-						<input type="submit" value="Send" />
-					</form>
-				}
+                    if (post.IsHidden)
+                    {
+                        <a href="/Home/SetIsHidePost?id=@post.Id&hide=false">[Unhide]</a>
+                    }
+                }
 
-				<div class="comments">
-					@foreach (var comment in post.Comments)
-					{
-						<div class="comment">
-							@comment.Autor.NickName <br />
-							@comment.Content <br />
+                <br />
 
-							@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == comment.Autor.Id)
-							{
-								<a href="/Home/EditComment?id=@comment.Id">[Edit]</a>
-								<a href="/Home/DeleteComment?id=@comment.Id">[Delete]</a>
-							}
+                <div class="container-fluid">
 
-							@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-							{
-								<a href="/Home/HideComment?id=@comment.Id">[Hide]</a>
-							}
+                    <a href="#" class="toggle-comments">Show comments</a>
 
-							<br />
-						</div>
-					}
-				</div>
-			</div>
-		}
-	</div>
-	@if (Model.CurrentPage > 1)
-	{
-		<p><a href="/Home/Index?page=@(Model.CurrentPage-1)"> Previous page </a> <br /></p>
-	}
-	@if (Model.HasNextPage == true)
-	{
-		<p><a href="/Home/Index?page=@(Model.CurrentPage+1)"> Next page </a> <br /></p>
-	}
+                    <div class="comments">
+                        @foreach (var comment in post.Comments)
+                        {
+                            <div class="comment">
+                                <h5 class="word_breakable"> @comment.Autor.UserName </h5>
+                                <p class="word_breakable">
+                                    @comment.Content
+                                </p>
+
+                                @if (User.Identity.IsAuthenticated && User.Identity.Name == comment.Autor.UserName)
+                                {
+                                    <a href="/Home/EditComment?id=@comment.Id">[Edit]</a>
+                                    <a href="/Home/DeleteComment?id=@comment.Id" class="deletePopUp">[Delete]</a>
+                                }
+
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                {
+                                    if (!comment.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHideComment?id=@comment.Id&hide=true">[Hide]</a>
+                                    }
+
+                                    if (comment.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHideComment?id=@comment.Id&hide=false">[Unhide]</a>
+                                    }
+                                }
+
+                                <br />
+                            </div>
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <form method="post" action="/Home/AddComment">
+                                <input type="hidden" name="PostId" value=@post.Id />
+                                <p>Enter comment :</p>
+                                <input type="text" name="Content" />
+                                <input type="submit" value="Send" />
+                            </form>
+                        }
+
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <p>Please log in to write your comment</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <script src="~/Scripts/homeScript.js"></script>
+    <script src="~/Scripts/popUpForDelete.js"></script>
+
+    @Html.PagedListPager(Model.Posts, page => Url.Action("Index", new { page }))
 </div>  

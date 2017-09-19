@@ -1,28 +1,59 @@
-﻿
-@{
-    Layout = null;
-}
+﻿@using Microsoft.AspNet.Identity;
+
 
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8" />
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/Styles/myMainStyle.css" />
+
+    <meta charset="utf-8" />
     @RenderSection("Styles", false)
 </head>
 
 <body>
-	<nav>
-		@if (User.Identity.IsAuthenticated)
-		{
-			@User.Identity.Name; <br />
-			<a href="/Account/LogOut">Log out</a>
-		}
-		@if (!User.Identity.IsAuthenticated)
-		{
-			<a href="/Account/Login">Log in</a><br />
-			<a href="/Account/Registration">Registration</a><br />
-		}
-	</nav>
-	@RenderBody()
+
+    <div class="container-fluid">
+    <div class="k-header">
+        <a class="navbar-brand" href="/Home/Index">My Little Blog</a>
+    </div>
+
+   
+        <div class="collapse navbar-collapse navbar-right">
+            <ul class="nav navbar-nav">
+                @if (User.Identity.IsAuthenticated)
+            {
+                    <li>
+                        <a class="navbar-brand" href=@Url.Action("ShowUserProfile", "Users", new { id = User.Identity.GetUserId()})>@User.Identity.Name </a>
+                    </li>
+                    if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a href="/Users/Index/">Show Users list</a>
+                        </li>
+                    }
+
+                    <li>
+                        <a href="/Account/LogOut">Log out</a>
+                    </li>
+
+                }
+                @if (!User.Identity.IsAuthenticated)
+            {
+                    <li>
+                        <a href="/Account/Login">Log in</a>
+                    </li>
+                    <li>
+                        <a href="/Account/Registration">Registration</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    @RenderBody()
 </body>
 </html>

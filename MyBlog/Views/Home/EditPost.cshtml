@@ -1,22 +1,37 @@
 ﻿@model MyBlog.Models.Post
 
-@{
-    Layout = null;
-}
-
-
 <body>
 	<p>
 		Editing post
 	</p>
-		<div>
-			<form method="post" action="/Home/UpdatePost">
+	<div>
+		<input type="hidden" id="postId" value="@Model.Id" name="Id" />
+		<input type="hidden" value="@Model.Autor.Id" name="AutorId" />
+		<p>Post name :</p>
+		<input type="text" id="postName" value="@Model.Name" name="Name" />
+		<p>Post text :</p>
+		<input type="text" id="postContent" value="@Model.Content" name="Content" />
+		<p>Post images :</p>
 
-				<input type="hidden" value="@Model.Id" name="Id" />
-				<input type="hidden" value="@Model.Autor.Id" name="AutorId" />
-<p>Post's text :</p>
-			<input type="text" value="@Model.Content" name="Content" />
-			<input type="submit" value="Edit" />
-		</form>
-    </div>
+		<div id="images">
+			@foreach (var picture in Model.Pictures)
+			{
+				string i = picture.Id.ToString();
+				<p>
+					<img id=@i src=@Url.Content(picture.PicturePath) value="false"  height="128" width="128">
+					<a href="#" class="imageToDelete" value=@i>delete</a>
+				</p>
+
+			}
+		</div>
+
+		<div id="uploaded">
+
+		</div>
+		<input accept="image/*" type="file" multiple="multiple" name="upload" id="uploadFile" /><br />
+		<p><button id="upload">Upload</button></p>
+
+		<input id="submit" type="submit" value="Edit" />
+		<script src="~/Scripts/editPost.js"></script>
+	</div>
 </body>

@@ -9,7 +9,7 @@ namespace MyBlog.ViewModels
     {
         public int Id { get; set; }
         public int PostId { get; set; }
-        public int AutorId { get; set; }
+        public string AutorId { get; set; }
         public string Content { get; set; }
     }
 }

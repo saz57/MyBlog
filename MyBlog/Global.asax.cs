@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
+using System.Data.Entity;
+
+using MyBlog.DAL.Context;
 
 namespace MyBlog
 {
@@ -11,6 +10,8 @@ namespace MyBlog
     {
         protected void Application_Start()
         {
+            Database.SetInitializer<BlogContext>(new ContextInitializer());
+
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
         }

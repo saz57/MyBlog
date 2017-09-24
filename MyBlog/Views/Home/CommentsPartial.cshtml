@@ -1,0 +1,31 @@
+﻿@model List<MyBlog.Models.Comment>
+
+
+    @foreach (var comment in Model)
+    {
+        <div class="comment">
+            @comment.Autor.UserName <br />
+            @comment.Content <br />
+
+            @if (User.Identity.IsAuthenticated && User.Identity.Name == comment.Autor.UserName)
+            {
+                <a href="/Home/EditComment?id=@comment.Id">[Edit]</a>
+                                <a href="/Home/DeleteComment?id=@comment.Id">[Delete]</a>
+            }
+
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                if (!comment.IsHidden)
+                {
+                    <a href="/Home/SetIsHideComment?id=@comment.Id&hide=true">[Hide]</a>
+                }
+
+                if (comment.IsHidden)
+                {
+                    <a href="/Home/SetIsHideComment?id=@comment.Id&hide=false">[Unhide]</a>
+                }
+            }
+
+            <br />
+        </div>
+    }

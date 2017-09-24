@@ -1,63 +1,132 @@
 ﻿@model MyBlog.ViewModels.UserViewModel
 <body>
-	<div>
-		<p>User nickname @Model.NickName</p>
-		<p> @Model.Role.ToString()</p>
-		@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-		{
-			<p>  <a href="/Users/ChangeRole?id=@Model.Id">Change Role</a> </p>
-		}
-		<p>Posts</p>
-		<table>
-			<tr>
-				<td>Content</td>
-				<td>Is Hidden</td>
-			</tr>
-			@foreach (var post in Model.Posts)
-			{
-				<tr>
-					<td>@post.Content</td>
-					<td>@post.IsHidden.ToString()</td>
+    <div class="container">
+        <p class=" lead">User nickname @Model.NickName</p>
 
-					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == post.Autor.Id)
-					{
-					<td><a href="/Home/EditPost?id=@post.Id">[Edit]</a></td>
-					<td><a href="/Home/DeletePost?id=@post.Id">[Delete]</a></td>
-					}
+        <div class="rows">
+            <div class="col-lg-4">
+                <h4>Roles</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Role: </th>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <th>Removing</th>
+                        }
+                    </tr>
+                    @foreach (var role in Model.Roles)
+                    {
+                        <tr>
+                            <td>
+                                - @role
+                            </td>
+                            <td>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                {
+                                    <a href="/Users/RemoveFromRole?id=@Model.Id&@role">Remove</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+            <div class="col-lg-4">
+                <h4>Posts</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Content</th>
+                        <th>Is Hidden</th>
 
-					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-					{
-					<td><a href="/Home/HidePost?id=@post.Id">[Hide]</a></td>
-					}
-				</tr>
-			}
-		</table>
-		<p>Comments</p>
-		<table>
-			<tr>
-				<td>Content</td>
-				<td>Is Hidden</td>
-			</tr>
-			@foreach (var comment in Model.Comments)
-			{
-				<tr>
-					<td>@comment.Content</td>
-					<td>@comment.IsHidden.ToString()</td>
+                        @if (User.Identity.IsAuthenticated && User.Identity.Name == Model.NickName)
+                        {
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <th>Hidding</th>
+                        }
+                    </tr>
+                    @foreach (var post in Model.Posts)
+            {
+                        <tr>
+                            <td>@post.Content</td>
+                            <td>@post.IsHidden.ToString()</td>
 
-					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Id == comment.Autor.Id)
-					{
-					<td><a href="/Home/EditComment?id=@comment.Id">[Edit]</a></td>
-					<td><a href="/Home/DeleteComment?id=@comment.Id">[Delete]</a></td>
-					}
+                            @if (User.Identity.IsAuthenticated && User.Identity.Name == post.Autor.UserName)
+                            {
+                                <td><a href="/Home/EditPost?id=@post.Id">[Edit]</a></td>
+                                <td><a href="/Home/DeletePost?id=@post.Id" class="deletePopUp">[Delete]</a></td>
+                            }
 
-					@if (User.Identity.IsAuthenticated && Model.CurrentUser.Role == MyBlog.Enums.UserRole.Admin)
-					{
-					<td><a href="/Home/HideComment?id=@comment.Id">[Hide]</a></td>
-					}
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                            {
+                                <td>
 
-				</tr>
-			}
-		</table>
-	</div>
+                                    @if (!post.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHidePost?id=@post.Id&hide=true">[Hide]</a>
+                                    }
+
+                                    @if (post.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHidePost?id=@post.Id&hide=false">[Unhide]</a>
+                                    }
+
+                                </td>
+                            }
+                        </tr>
+                    }
+                </table>
+            </div>
+            <div class="col-lg-4">
+                <h4>Comments</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Content</th>
+                        <th>Is Hidden</th>
+                        @if (User.Identity.IsAuthenticated && User.Identity.Name == Model.NickName)
+                        {
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <th>Hidding</th>
+                        }
+                    </tr>
+                    @foreach (var comment in Model.Comments)
+            {
+                        <tr>
+                            <td class="word_breakable">@comment.Content</td>
+                            <td>@comment.IsHidden.ToString()</td>
+
+                            @if (User.Identity.IsAuthenticated && User.Identity.Name == comment.Autor.UserName)
+                            {
+                                <td><a href="/Home/EditComment?id=@comment.Id">[Edit]</a></td>
+                                <td><a href="/Home/DeleteComment?id=@comment.Id" class="deletePopUp">[Delete]</a></td>
+                            }
+
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                            {
+                                <td>
+                                    @if (!comment.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHideComment?id=@comment.Id&hide=true">[Hide]</a>
+                                    }
+
+                                    @if (comment.IsHidden)
+                                    {
+                                        <a href="/Home/SetIsHideComment?id=@comment.Id&hide=false">[Unhide]</a>
+                                    }
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/popUpForDelete.js"></script>
 </body>
-

@@ -3,69 +3,103 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using MyBlog.Repository;
+using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.Identity.EntityFramework;
+using PagedList;
+
+using MyBlog.DAL.RepositoriesManager;
 using MyBlog.Models;
-using MyBlog.Enums;
 using MyBlog.ViewModels;
 
 namespace MyBlog.Controllers
 {
+    
     public class UsersController : Controller
     {
-        private static UsersRepository _userRepository;
+       
         private int pageSize = 20;
 
-        static UsersController()
-        {
-            _userRepository = new UsersRepository();
-        }
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Index(int currentPage = 1)
         {
+
             UsersListViewModel viewModel = new UsersListViewModel();
-            if(User.Identity.IsAuthenticated)
+            List<UserViewModel> userViews = new List<UserViewModel>();
+            List<ApplicationUser> users = RepositoryManager.UserManager.Users.ToList();
+            List<SelectListItem> roleViews = new List<SelectListItem>();
+
+            foreach (IdentityRole role in RepositoryManager.RoleManager.Roles.ToList())
             {
-                viewModel.CurrentUser = new CurrentUserViewModel(_userRepository.GetByNickName(User.Identity.Name));
+                roleViews.Add(new SelectListItem() { Text = role.Name, Value = role.Name });
             }
 
-            viewModel.Users = _userRepository.Get(currentPage, pageSize);
-            viewModel.CurrentPage = currentPage;
-            
-            if (viewModel.Users.Count() < pageSize)
-            {
-                viewModel.HasNextPage = false;
-            }
 
-            if (viewModel.Users.Count() >= pageSize)
+            foreach (ApplicationUser user in users)
             {
-                viewModel.HasNextPage = true;
+                userViews.Add(new UserViewModel(user, RepositoryManager.UserManager.GetRoles(user.Id)));
             }
+            viewModel.Users = new PagedList<UserViewModel>(userViews, currentPage, pageSize);
+            viewModel.Roles = roleViews;
 
             return View("Index", viewModel);
         }
-        
+
         [HttpGet]
-        public ActionResult ShowUserProfile(int id = 0)
+        [Authorize]
+        public ActionResult ShowUserProfile(string id)
         {
-            if (id != 0)
+            if (!String.IsNullOrWhiteSpace(id))
             {
-                UserViewModel viewModel = new UserViewModel(_userRepository.GetById(id));
-                viewModel.CurrentUser = new CurrentUserViewModel(_userRepository.GetByNickName(User.Identity.Name));
-                return View("UserView", viewModel);
+
+                ApplicationUser user = RepositoryManager.UserManager.Users.FirstOrDefault(u => u.Id == id);
+
+                if (user != null)
+                {
+                    UserViewModel viewModel = new UserViewModel(user, RepositoryManager.UserManager.GetRoles(user.Id));
+                    return View("UserView", viewModel);
+                }
+
             }
-            return View();
+            return Index();
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult RemoveFromRole(string userId, string role)
+        {
+            if (!String.IsNullOrWhiteSpace(userId) && !String.IsNullOrWhiteSpace(role) && RepositoryManager.UserManager.FindById(userId) != null)
+            {
+                RepositoryManager.UserManager.RemoveFromRole(userId, role);
+            }
+            return Index();
         }
 
         [HttpPost]
-        [Authorize]
-        public ActionResult ChangeRole(int id = 0)
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddToRole(string userId, string role)
         {
-            if (id != 0)
+            if (!String.IsNullOrWhiteSpace(userId) && !String.IsNullOrWhiteSpace(role) && RepositoryManager.UserManager.FindById(userId) != null) // maybe useless
             {
-                ApplicationUser user = _userRepository.GetById(id, false);
-                _userRepository.Update(user,true);
+                RepositoryManager.UserManager.AddToRole(userId, role);
             }
-            return View();
+            return Index();
         }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult ChangeIsBlocked(string userId, bool isBlocked = false)
+        {
+            if (!String.IsNullOrWhiteSpace(userId))
+            {
+                ApplicationUser user = RepositoryManager.UserManager.FindById(userId);
+
+                if (user != null)
+                {
+                    user.IsBlocked = isBlocked;
+                    RepositoryManager.UserManager.Update(user);
+                }
+            }
+            return Index();
+        } 
     }
 }
